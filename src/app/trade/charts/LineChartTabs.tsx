@@ -9,6 +9,7 @@ import {
 import { useState } from "react";
 import { startOfYear, subDays } from "date-fns";
 import { Tabs, TabsContent, TabsTrigger, TabsList } from "@/components/ui/tabs";
+import { useGetGraphData } from "@/api/useGraphData";
 
 const data = [
   {
@@ -32,8 +33,28 @@ const data = [
 const dataFormatter = (number: number) => `$ ${Intl.NumberFormat("us").format(number).toString()}`;
 
 export default function LineChartTabs() {
+
   const [selectedPeriod, setSelectedPeriod] = useState("YTD");
   const [selectedIndex, setSelectedIndex] = useState(4);
+
+  const { data: apiData, isLoading, isError } = useGetGraphData({
+    from_currency: "INR",
+    to_currency: "SGD",
+    from_date: "2022-01-01",
+    to_date: "2023-01-01",
+  });
+
+  if (isLoading) return <div>Loading...</div>;
+  if (isError || !apiData) return <div>Error fetching data</div>;
+
+  const data = apiData.data.map(item => ({
+    Date: item.date,
+    Price: parseFloat(item.value), // Assuming the value is a string representation of a float number
+    fromCurrency: item.fromCurrency,
+    toCurrency: item.toCurrency,
+  }));
+
+  console.log({ data })
 
   const getDate = (dateString: string) => {
     const [day, month, year] = dateString.split(".").map(Number);
@@ -74,7 +95,7 @@ export default function LineChartTabs() {
   };
 
   return (
-    <Card>
+    <Card className="col-span-4">
       <Title>ETH-USD</Title>
       <Text>Daily share price of a fictive company</Text>
       <Tabs className="mt-10">
