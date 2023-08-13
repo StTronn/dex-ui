@@ -1,11 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
-import { axiosInstance } from './'; // Assuming you've set up axiosInstance in your project
+import { axiosInstanceAdapter } from './'; // Assuming you've set up axiosInstance in your project
+import { Coins } from '@/constants';
 
 export const useGetPoolInfo = (coin0: string, coin1: string) => {
 
   const fetchPoolInfo = async (): Promise<PoolInfoResponse> => {
     const url = `/liquidity/get_pool_info/${coin0}/${coin1}`;
-    const response = await axiosInstance.get<PoolInfoResponse>(url, {
+    const response = await axiosInstanceAdapter.get<PoolInfoResponse>(url, {
       headers: {
         accept: 'application/json',
         jwtToken: `${localStorage.getItem('authToken')}`
@@ -23,8 +24,8 @@ export const useGetPoolInfo = (coin0: string, coin1: string) => {
 };
 
 interface PoolInfoResponse {
-  reserve0: string;
-  reserve1: string;
+  [key: string]: string
+  [key: string]: string;
   totalLiquidity: string;
   token0Price: string;
   token1Price: string;

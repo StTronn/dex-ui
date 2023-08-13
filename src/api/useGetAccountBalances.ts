@@ -1,7 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 import { axiosInstance } from './'; // Using './' as per your instruction
-import { useAtom } from 'jotai';
-import { authTokenAtom } from '@/atoms/authTokenAtom';
 
 export const useGetAccountBalances = () => {
 

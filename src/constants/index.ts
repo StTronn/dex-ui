@@ -17,6 +17,6 @@ export type Pairs = "INR/SGD" | "INR/THB" | "SGD/THB";
 export type Coins = "INR" | "THB" | "SGD";
 
 export const URL = "http://localhost:4023"
-export const ADAPTER_URL = "http://localhost:4023"
+export const ADAPTER_URL = "http://localhost:5023"
 
 export const coins: Coins[] = ["INR", "SGD", "THB"];
