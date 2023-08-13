@@ -6,100 +6,88 @@ import {
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MarkerBar } from "@tremor/react";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+
 
 export const RecentSalesCard = () => {
   return (
-    <Card className="col-span-1">
+    <Card className="col-span-2">
       <CardHeader>
         <CardTitle>Last Orders</CardTitle>
         <CardDescription></CardDescription>
       </CardHeader>
       <CardContent>
-        <RecentSales />
+        <TradeHistoryTable/>
       </CardContent>
     </Card>
   )
 
 }
-function RecentSales() {
-  const salesData = [
-    {
-      name: "Olivia Martin",
-      email: "olivia.martin@email.com",
-      avatar: "https://ui.shadcn.com/avatars/03.png",
-      fallback: "OM",
-      amount: "+$1,999.00",
-    },
-    {
-      name: "Jackson Lee",
-      email: "jackson.lee@email.com",
-      avatar: "https://ui.shadcn.com/avatars/02.png",
-      fallback: "JL",
-      amount: "+$39.00",
-    },
-    {
-      name: "Isabella Nguyen",
-      email: "isabella.nguyen@email.com",
-      avatar: "https://ui.shadcn.com/avatars/01.png",
-      fallback: "IN",
-      amount: "+$299.00",
-    },
-    {
-      name: "William Kim",
-      email: "will@email.com",
-      avatar: "https://ui.shadcn.com/avatars/04.png",
-      fallback: "WK",
-      amount: "+$99.00",
-    },
-    {
-      name: "Sofia Davis",
-      email: "sofia.davis@email.com",
-      avatar: "https://ui.shadcn.com/avatars/05.png",
-      fallback: "SD",
-      amount: "+$39.00",
-    },
-  ];
-  const item = {
-      title: "Customers",
-      metric: "1,234",
-      value: 40,
-      minMetric: "926",
-      minValue: 30,
-      maxMetric: "2,098",
-      maxValue: 68,
-    }
-  
+const trades = [
+  {
+    price: "$250.00",
+    volume: "1.5 BTC",
+    time: "12:45 PM",
+  },
+  {
+    price: "$150.00",
+    volume: "0.75 BTC",
+    time: "12:46 PM",
+  },
+  {
+    price: "$350.00",
+    volume: "2 BTC",
+    time: "1:15 PM",
+  },
+  {
+    price: "$450.00",
+    volume: "2.5 BTC",
+    time: "1:30 PM",
+  },
+  {
+    price: "$550.00",
+    volume: "3 BTC",
+    time: "2:00 PM",
+  },
+  {
+    price: "$200.00",
+    volume: "1 BTC",
+    time: "2:15 PM",
+  },
+  {
+    price: "$300.00",
+    volume: "1.25 BTC",
+    time: "2:45 PM",
+  },
+]
 
+export function TradeHistoryTable() {
   return (
-    <div className="space-y-8">
-      {salesData.map((sale) => (
-        <div key={sale.email} className="flex items-center justify-between">
-          <div className="flex items-center">
-            <Avatar className="h-9 w-9">
-              <AvatarImage src={sale.avatar} alt="Avatar" />
-              <AvatarFallback>{sale.fallback}</AvatarFallback>
-            </Avatar>
-            <div className="ml-4 space-y-1">
-              <p className="text-sm font-medium leading-none -ml-2.5">+$130</p>
-              <p className="text-sm text-muted-foreground">ETH</p>
-            </div>
-          </div>
-          <div className="px-8 w-full">
-            <MarkerBar
-              value={item.value}
-              minValue={item.minValue}
-              maxValue={item.maxValue}
-              markerTooltip={`${item.value}%`}
-              rangeTooltip={`${item.minMetric} (${item.minValue}%)
-                                - ${item.maxMetric} (${item.maxValue}%)`}
-            />
-          </div>
-          <div className="grid justify-items-end spacey-y-1">
-            <p className="text-sm font-medium leading-none">-$130</p>
-            <p className="text-sm text-muted-foreground">USDC</p>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Time</TableHead>
+          <TableHead>Volume</TableHead>
+          <TableHead>Price</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {trades.map((trade, index) => (
+          <TableRow key={index}>
+            <TableCell>{trade.time}</TableCell>
+            <TableCell>{trade.volume}</TableCell>
+            <TableCell>{trade.price}</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  )
 }

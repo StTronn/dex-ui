@@ -7,19 +7,30 @@ import { Icons } from "@/components/Icons"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { useLogin } from "@/api/useLogin"
+import { useRouter } from "next/navigation"
 
-interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
+interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> { }
+
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
-  const [isLoading, setIsLoading] = React.useState<boolean>(false)
+  const router = useRouter();
+  const { mutate, isLoading, isError, error } = useLogin();
 
   async function onSubmit(event: React.SyntheticEvent) {
-    event.preventDefault()
-    setIsLoading(true)
+    event.preventDefault();
 
-    setTimeout(() => {
-      setIsLoading(false)
-    }, 3000)
+    const email = (event.target as any)["email"].value;
+    const password = (event.target as any)["password"].value;
+
+    mutate({
+      emailId: email,
+      password: password,
+    }, {
+      onSuccess: () => {
+        router.push("/trade")
+      }
+    });
   }
 
   return (
@@ -41,15 +52,15 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
             />
           </div>
           <div className="grid gap-1">
-            <Label className="sr-only" htmlFor="email">
+            <Label className="sr-only" htmlFor="password">
               Password
             </Label>
             <Input
               id="password"
               placeholder="password"
-              type="email"
+              type="password" // fixed the type from "email" to "password"
               autoCapitalize="none"
-              autoComplete="email"
+              autoComplete="current-password" // fixed the autoComplete attribute for password field
               autoCorrect="off"
               disabled={isLoading}
             />
@@ -60,8 +71,15 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
             )}
             Sign In with Email
           </Button>
+
+          {/* Show error if there's any */}
+          {isError && (
+            <div className="mt-4 text-red-500">
+              {error?.message || "An error occurred"}
+            </div>
+          )}
         </div>
       </form>
     </div>
-  )
+  );
 }

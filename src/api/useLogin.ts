@@ -1,8 +1,10 @@
 import { useMutation } from '@tanstack/react-query';
 import { axiosInstance } from './'; // Using './' as per your instruction
+import { useAtom } from 'jotai';
+import { authTokenAtom } from '@/atoms/authTokenAtom';
 
 export const useLogin = () => {
-  const [_, setAuthToken] = useUpdateAtom(authTokenAtom);
+  const [_, setAuthToken] = useAtom(authTokenAtom);
   const login = async (data: LoginData): Promise<LoginResponse> => {
     const response = await axiosInstance.post<LoginResponse>('/project51/v1/onboarding/login', data);
 
@@ -17,6 +19,7 @@ export const useLogin = () => {
     onSuccess: (data) => {
       console.log({ data })
       setAuthToken(data.data.authToken)
+      localStorage.setItem('authToken', data.data.authToken);
     }
   });
 };

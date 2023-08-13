@@ -1,3 +1,5 @@
+'use client'
+
 import { Metadata } from "next"
 import Image from "next/image"
 import { PlusCircledIcon } from "@radix-ui/react-icons"
@@ -18,6 +20,11 @@ import { TopBar } from "./components/top-bar"
 import LineChartTabs from "./charts/LineChartTabs"
 import { OrderSection } from "./components/OrderSection"
 import { CreateOrder } from "./components/OrderSection/CreateOrder"
+import { BuySell } from "./components/buy-sell"
+import { RecentSalesCard } from "./components/OrderSection/SwapOrderHistory"
+import { useAtom } from "jotai"
+import { selectedPairAtom } from "@/atoms/selectedPairAtom"
+import { CURRENCY_PAIRS } from "@/constants"
 
 
 const sidebarNavItems = [
@@ -42,12 +49,15 @@ const sidebarNavItems = [
     href: "/examples/forms/display",
   },
 ]
-export const metadata: Metadata = {
-  title: "Music App",
-  description: "Example music app using the components.",
-}
+
+// export const metadata: Metadata = {
+//   title: "Music App",
+//   description: "Example music app using the components.",
+// }
 
 export default function MusicPage() {
+
+  const [selectedPair, setSelectedPair] = useAtom(selectedPairAtom);
   return (
     <>
       <div className="md:hidden">
@@ -70,24 +80,18 @@ export default function MusicPage() {
       <div className="hidden md:block">
         <div className="border-t">
           <div className="bg-background">
-            <div className="grid lg:grid-cols-6 ">
-              <Sidebar playlists={playlists} />
-              <div className="col-span-3 lg:col-span-5 lg:border-l">
+            <div className="grid grid-cols-[380px_1fr] ">
+              <CreateOrder />
+              <div className="lg:border-l">
                 <div className="h-full px-4 py-6 lg:px-8">
-                  <Tabs defaultValue="music" className="h-full space-y-6">
+                  <Tabs defaultValue={selectedPair} className="h-full space-y-6" onChange={setSelectedPair}>
                     <div className="space-between flex items-center">
                       <TabsList>
-                        <TabsTrigger value="price" className="relative">
-                          RUPI/USDC
-                        </TabsTrigger>
-                        <TabsTrigger value="INR/USDC" className="relative">
-                          INR/USDC
-                        </TabsTrigger>
-                        <TabsTrigger value="podcasts">Podcasts</TabsTrigger>
-                        <TabsTrigger value="live" disabled>
-                          Live
-                        </TabsTrigger>
-
+                        {Object.keys(CURRENCY_PAIRS).map(pair => (
+                          <TabsTrigger key={pair} value={pair} className="relative">
+                            {pair}
+                          </TabsTrigger>
+                        ))}
                       </TabsList>
                       <div className="ml-auto mr-4">
                         <Button>
@@ -96,39 +100,16 @@ export default function MusicPage() {
                         </Button>
                       </div>
                     </div>
-                    <TabsContent value="price">
-                      <div className="space-y-6">
-                        <div className="grid gap-6 lg:grid-cols-6">
-                          <LineChartTabs />
-                          <CreateOrder />
+                    {Object.keys(CURRENCY_PAIRS).map(pair => (
+                      <TabsContent key={pair} value={pair} className="border-none p-0 outline-none">
+                        <div className="space-y-6">
+                          <div className="grid gap-2 lg:grid-cols-6">
+                            <LineChartTabs />
+                          </div>
+                          <OrderSection />
                         </div>
-                        <OrderSection />
-                      </div>
-                    </TabsContent>
-                    <TabsContent
-                      value="INR/USDC"
-                      className="border-none p-0 outline-none"
-                    >
-                      <div className="space-y-6">
-                        <div className="grid gap-6 lg:grid-cols-6">
-                          <LineChartTabs />
-                          <CreateOrder />
-                        </div>
-                        <OrderSection />
-                      </div>
-                    </TabsContent>
-                    <TabsContent
-                      value="podcasts"
-                      className="h-full flex-col border-none p-0 data-[state=active]:flex"
-                    >
-                      <div className="space-y-6">
-                        <div className="grid gap-6 lg:grid-cols-6">
-                          <LineChartTabs />
-                          <CreateOrder />
-                        </div>
-                        <OrderSection />
-                      </div>
-                    </TabsContent>
+                      </TabsContent>
+                    ))}
                   </Tabs>
                 </div>
               </div>

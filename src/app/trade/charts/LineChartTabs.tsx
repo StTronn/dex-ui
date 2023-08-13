@@ -1,36 +1,18 @@
 'use client';
 import {
-  Card,
   Title,
   Text,
   LineChart,
 } from "@tremor/react";
+import { Card } from '@/components/ui/card'
 
 import { useState } from "react";
 import { startOfYear, subDays } from "date-fns";
 import { Tabs, TabsContent, TabsTrigger, TabsList } from "@/components/ui/tabs";
 import { useGetGraphData } from "@/api/useGraphData";
 
-const data = [
-  {
-    Date: "04.05.2021",
-    Price: 113.05,
-    Volume: 21400410,
-  },
-  {
-    Date: "05.05.2021",
-    Price: 113,
-    Volume: 29707270,
-  },
-  // ...
-  {
-    Date: "17.11.2022",
-    Price: 95.32,
-    Volume: 45187420,
-  },
-];
 
-const dataFormatter = (number: number) => `$ ${Intl.NumberFormat("us").format(number).toString()}`;
+const dataFormatter = (number: number) => `${Intl.NumberFormat("us").format(number).toString()}`;
 
 export default function LineChartTabs() {
 
@@ -57,7 +39,7 @@ export default function LineChartTabs() {
   console.log({ data })
 
   const getDate = (dateString: string) => {
-    const [day, month, year] = dateString.split(".").map(Number);
+    const [year, month, day] = dateString.split("-").map(Number);
     return new Date(year, month - 1, day);
   };
 
@@ -67,105 +49,112 @@ export default function LineChartTabs() {
       return currentDate >= startDate && currentDate <= endDate;
     });
 
-  const getFilteredData = (index: number) => {
-    const indexMapper = ["1M", "2M", "6M", "YTD", "YTD"];
-    const period = indexMapper[index];
+  const getFilteredData = (value: string) => {
+    let periodStartDate: Date;
 
-    const lastAvailableDate = getDate(data[data.length - 1].Date);
-    switch (period) {
-      case "1M": {
-        const periodStartDate = subDays(lastAvailableDate, 30);
-        return filterData(periodStartDate, lastAvailableDate);
-      }
-      case "2M": {
-        const periodStartDate = subDays(lastAvailableDate, 60);
-        return filterData(periodStartDate, lastAvailableDate);
-      }
-      case "6M": {
-        const periodStartDate = subDays(lastAvailableDate, 180);
-        return filterData(periodStartDate, lastAvailableDate);
-      }
-      case "YTD": {
-        const periodStartDate = startOfYear(lastAvailableDate);
-        return filterData(periodStartDate, lastAvailableDate);
-      }
+    const lastAvailableDate = getDate(data[0].Date);
+
+    switch (value) {
+      case "1M":
+        periodStartDate = subDays(lastAvailableDate, 30);
+        break;
+      case "2M":
+        periodStartDate = subDays(lastAvailableDate, 60);
+        break;
+      case "6M":
+        periodStartDate = subDays(lastAvailableDate, 180);
+        break;
+      case "YTD":
+        periodStartDate = startOfYear(lastAvailableDate);
+        break;
+      case "MAX":
       default:
         return data;
     }
+    console.log({ periodStartDate, lastAvailableDate })
+
+    const tempDate = data.filter(item => getDate(item.Date) >= periodStartDate);
+    console.log({ tempDate })
+    return tempDate;
   };
 
   return (
     <Card className="col-span-4">
-      <Title>ETH-USD</Title>
-      <Text>Daily share price of a fictive company</Text>
-      <Tabs className="mt-10">
-        <TabsList defaultValue="YTD">
-          <TabsTrigger value="1M">1M</TabsTrigger>
-          <TabsTrigger value={"2M"}>2M</TabsTrigger>
-          <TabsTrigger value="6M">6M</TabsTrigger>
-          <TabsTrigger value="YTD">YTD</TabsTrigger>
-          <TabsTrigger value="MAX">Max</TabsTrigger>
-        </TabsList>
+      <Tabs defaultValue="1M" className="">
         <TabsContent value="1M">
           <LineChart
             className="h-80 mt-8"
-            data={getFilteredData(selectedIndex)}
+            data={getFilteredData("1M")}
             index="Date"
             categories={["Price"]}
-            colors={["blue"]}
+            colors={["emerald"]}
             valueFormatter={dataFormatter}
+            autoMinValue
             showLegend={false}
-            yAxisWidth={48}
+            yAxisWidth={46}
           />
         </TabsContent>
         <TabsContent value="2M">
           <LineChart
             className="h-80 mt-8"
-            data={getFilteredData(selectedIndex)}
+            data={getFilteredData("2M")}
             index="Date"
             categories={["Price"]}
-            colors={["blue"]}
+            colors={["emerald"]}
             valueFormatter={dataFormatter}
+            autoMinValue
             showLegend={false}
-            yAxisWidth={48}
+            yAxisWidth={46}
           />
         </TabsContent>
         <TabsContent value="6M">
           <LineChart
             className="h-80 mt-8"
-            data={getFilteredData(selectedIndex)}
+            data={getFilteredData("6M")}
             index="Date"
             categories={["Price"]}
-            colors={["blue"]}
+            colors={["emerald"]}
             valueFormatter={dataFormatter}
             showLegend={false}
-            yAxisWidth={48}
+            autoMinValue
+            yAxisWidth={46}
           />
         </TabsContent>
         <TabsContent value="YTD">
           <LineChart
             className="h-80 mt-8"
-            data={getFilteredData(selectedIndex)}
+            data={getFilteredData("YTD")}
             index="Date"
             categories={["Price"]}
-            colors={["blue"]}
+            colors={["emerald"]}
             valueFormatter={dataFormatter}
             showLegend={false}
-            yAxisWidth={48}
+            autoMinValue
+            yAxisWidth={46}
           />
         </TabsContent>
         <TabsContent value="MAX">
           <LineChart
             className="h-80 mt-8"
-            data={getFilteredData(selectedIndex)}
+            data={getFilteredData("MAX")}
             index="Date"
             categories={["Price"]}
-            colors={["blue"]}
+            colors={["emerald"]}
             valueFormatter={dataFormatter}
             showLegend={false}
-            yAxisWidth={48}
+            autoMinValue
+            yAxisWidth={46}
           />
         </TabsContent>
+        <div className="grid w-fit  py-2 px-12">
+          <TabsList defaultValue="YTD">
+            <TabsTrigger value={"1M"}>1M</TabsTrigger>
+            <TabsTrigger value={"2M"}>2M</TabsTrigger>
+            <TabsTrigger value={"6M"}>6M</TabsTrigger>
+            <TabsTrigger value={"YTD"}>YTD</TabsTrigger>
+            <TabsTrigger value={"MAX"}>Max</TabsTrigger>
+          </TabsList>
+        </div>
       </Tabs>
     </Card>
   );
