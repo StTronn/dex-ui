@@ -15,7 +15,7 @@ interface SwapResponse {
   };
 }
 
-export const useSwapOrder = (token0: string, token1: string) => {
+export const useSwapOrderJava = (token0: string, token1: string) => {
   const createSwap = async (payload: SwapPayload): Promise<SwapResponse> => {
     const url = `/liquidity/swap/${token0}/${token1}`;
     const response = await axiosInstanceAdapter.post<SwapResponse>(url, payload, {

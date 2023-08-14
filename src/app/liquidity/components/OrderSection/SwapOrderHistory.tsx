@@ -15,12 +15,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { useGetSwapEvents } from "@/api/useGetSwapEvents";
 import { useAtom } from "jotai";
 import { selectedPairAtom } from "@/atoms/selectedPairAtom";
+import { useGetMintEvents } from "@/api/useGetMintEvents";
 
 export const useSwapOrderHistory = (coin1: string, coin2: string) => {
-  const { data, ...rest } = useGetSwapEvents(coin1, coin2);
+  const { data, ...rest } = useGetMintEvents(coin1, coin2);
 
   const formattedData = data?.data.map((event) => ({
     sender: event.sender.slice(0, 9) + "...", // Assuming you'll have a timestamp in your data. Replace this with actual time.
@@ -37,7 +37,7 @@ export const RecentSalesCard = () => {
   return (
     <Card className="col-span-1">
       <CardHeader>
-        <CardTitle>All Trades</CardTitle>
+        <CardTitle>All Liquidity Minted</CardTitle>
         <CardDescription></CardDescription>
       </CardHeader>
       <CardContent>

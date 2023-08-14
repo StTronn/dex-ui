@@ -1,16 +1,13 @@
 'use client';
 import { useGetAccountBalances } from "@/api/useGetAccountBalances";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { ethers } from "ethers";
 
 const Balance = () => {
   return (
     <div className="grid gap-8 grid-cols-1 h-full px-4 py-6 lg:px-8 ">
-      <Section title="Currency Balance" description="Balances of all your currency holdings">
+      <Section title="Balances" description="Balances of all your currency holdings">
         <Overview type="currency" />
-      </Section>
-
-      <Section title="Liquidity Balance" description="Top picks for you. Updated daily.">
-        <Overview type="liquidity" />
       </Section>
     </div>
   )
@@ -45,7 +42,7 @@ const Overview = ({ type }: OverviewProps) => {
     const balances = data.data;
 
     return (
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 lg:gap-8 col-span-2">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 lg:gap-8 col-span-2">
         {Object.keys(balances).map(currency => (
           <BalanceCard
             key={currency}
@@ -81,7 +78,7 @@ const BalanceCard = ({ title, balance }: BalanceCardProps) => (
       </svg>
     </CardHeader>
     <CardContent>
-      <div className="text-2xl font-bold">{balance}</div>
+      <div className="text-2xl font-bold">{formatBalance(balance)}</div>
       {/* You can add more details here if needed */}
     </CardContent>
   </Card>
@@ -109,5 +106,18 @@ type BalanceCardProps = {
   balance: string;
 };
 
+function formatBalance(balance: string): string {
+  // Convert the balance to Ether first
+  const etherBalance = parseFloat(balance);
 
+  // Check the magnitude and adjust accordingly
+  if (etherBalance >= 1_000_000_000) {
+    return (etherBalance / 1_000_000_000_000_000_0 - (Math.random() * 1_00)).toFixed(0) + ' Thousand';
+  } else if (etherBalance >= 1_000_000) {
+    return (etherBalance / 1_000_000).toFixed(0) + ' Million';
+  } else {
+    // Convert the balance to string and add commas
+    return etherBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+}
 export default Balance;

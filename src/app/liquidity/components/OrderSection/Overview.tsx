@@ -1,12 +1,15 @@
 import React from 'react';
 import { useGetPoolInfo } from '@/api/usePoolgetInfo'
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { useAtom } from 'jotai';
+import { selectedPairAtom } from '@/atoms/selectedPairAtom';
+import { ethers } from 'ethers';
 
 
 export const Overview = () => {
-  const coin0 = "THB";
-  const coin1 = "SGD";
-  const { data, isLoading, isError, error } = useGetPoolInfo(coin0, coin1);
+  const [selectedPair] = useAtom(selectedPairAtom);
+  const [token0, token1] = selectedPair.split('/');
+  const { data, isLoading, isError, error } = useGetPoolInfo(token0, token1);
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -16,27 +19,30 @@ export const Overview = () => {
     return <div>Error: {error?.message}</div>;
   }
 
+  const formatValue = (value) => {
+    const formattedEther = ethers.formatEther(value);
+    return new Intl.NumberFormat('en-US').format(parseFloat(formattedEther));
+  };
+
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 lg:gap-8 col-span-2">
       {/* Card for token0 info */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">{coin0} Reserve</CardTitle>
+          <CardTitle className="text-sm font-medium">{token0} Reserve</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{data[coin0]}</div>
-          <p className="text-xs text-muted-foreground">Liquidity Value: {data.liquidityValueInToken0.join(', ')}</p>
+          <div className="text-2xl font-bold">{formatValue(data[token0])}</div>
         </CardContent>
       </Card>
 
       {/* Card for token1 info */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">{coin1} Reserve</CardTitle>
+          <CardTitle className="text-sm font-medium">{token1} Reserve</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{data[coin1]}</div>
-          <p className="text-xs text-muted-foreground">Liquidity Value: {data.liquidityValueInToken1.join(', ')}</p>
+          <div className="text-2xl font-bold">{formatValue(data[token1])}</div>
         </CardContent>
       </Card>
 
@@ -46,7 +52,7 @@ export const Overview = () => {
           <CardTitle className="text-sm font-medium">Total Liquidity</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{data.totalLiquidity}</div>
+          <div className="text-2xl font-bold">{formatValue(data.totalLiquidity)}</div>
         </CardContent>
       </Card>
     </div>

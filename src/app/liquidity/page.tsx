@@ -19,12 +19,14 @@ import { Sidebar } from "./components/sidebar"
 import { TopBar } from "./components/top-bar"
 import LineChartTabs from "./charts/LineChartTabs"
 import { OrderSection } from "./components/OrderSection"
-import { CreateOrder } from "./components/OrderSection/CreateOrder"
+import { AddLiquidity } from "./components/OrderSection/AddLiquidity"
 import { BuySell } from "./components/buy-sell"
 import { RecentSalesCard } from "./components/OrderSection/SwapOrderHistory"
 import { useAtom } from "jotai"
 import { selectedPairAtom } from "@/atoms/selectedPairAtom"
 import { CURRENCY_PAIRS } from "@/constants"
+import TeamSwitcher from "./components/team-switcher"
+import RouteVisualizer from "../trade/components/OrderSection/RouteVisualizer"
 
 
 const sidebarNavItems = [
@@ -81,15 +83,14 @@ export default function MusicPage() {
         <div className="border-t">
           <div className="bg-background">
             <div className="grid grid-cols-[380px_1fr] ">
-              <CreateOrder />
+              <AddLiquidity />
               <div className="lg:border-l">
-                <div className="h-full px-4 py-6 lg:px-8">
+                <div className="h-full px-4  lg:px-8">
                   <Tabs defaultValue={selectedPair} className="h-full space-y-6" onChange={setSelectedPair}>
                     {Object.keys(CURRENCY_PAIRS).map(pair => (
                       <TabsContent key={pair} value={pair} className="border-none p-0 outline-none">
                         <div className="space-y-6">
                           <div className="grid gap-2 lg:grid-cols-6">
-                            <LineChartTabs />
                           </div>
                           <OrderSection />
                         </div>
@@ -101,6 +102,7 @@ export default function MusicPage() {
             </div>
           </div>
         </div>
+        <RouteVisualizer />
       </div>
     </>
   )

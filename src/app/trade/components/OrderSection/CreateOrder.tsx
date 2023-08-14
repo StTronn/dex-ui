@@ -12,6 +12,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useAtom } from "jotai"
@@ -28,47 +34,64 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { useSwapHook } from "@/api/useSwapToken"
+import { useSwapOrder } from "@/api/useSwapToken"
+import { formatEtherValue } from "@/utils"
+import { ethers } from "ethers"
 
 export function CreateOrder() {
   const [selectedPair] = useAtom(selectedPairAtom);
-  const [token0, token1] = selectedPair.split('/'); // This will give INR and SGD for INR/SGD for example
+  const [token0, token1] = selectedPair.split('/');
 
   const { data: poolInfo, isLoading, isError, error } = useGetPoolInfo(token0, token1);
-  const { data: balances } = useGetTokenBalances();
+  const { data: balances, isLoading: isBalanceLoading } = useGetTokenBalances();
 
-  const reserve0 = poolInfo?.[token0] || 0;
-  const reserve1 = poolInfo?.[token1] || 0;
-  console.log({ reserve0, reserve1 })
-  console.log(poolInfo?.[token0])
-
-  const [amount0, setAmount0] = useState('');
+  const [mode, setMode] = useState('buy'); // 'buy' or 'sell'
+  const [inputToken, setInputToken] = useState(token0);
+  const [outputToken, setOutputToken] = useState(token1);
+  const [inputAmount, setInputAmount] = useState('');
   const [expectedAmount, setExpectedAmount] = useState('');
 
+
+
+  const [showDialog, setShowDialog] = useState(false);
+  const [swapResponse, setSwapResponse] = useState(null);
+
+  console.log({ showDialog })
+  const createSwapMutation = useSwapOrder(inputToken, outputToken);
+
   useEffect(() => {
-    if (amount0 && !isNaN(Number(amount0))) {
-      const outputAmount = (Number(amount0) * Number(reserve1)) / (Number(reserve0));
-      setExpectedAmount(outputAmount.toFixed(2));
+    if (mode === 'buy') {
+      setInputToken(token1);
+      setOutputToken(token0);
+    } else {
+      setInputToken(token0);
+      setOutputToken(token1);
+    }
+  }, [mode]);
+
+  useEffect(() => {
+    if (inputAmount && !isNaN(Number(inputAmount))) {
+      const reserveIn = mode === 'buy' ? poolInfo?.[token1] : poolInfo?.[token0];
+      const reserveOut = mode === 'buy' ? poolInfo?.[token0] : poolInfo?.[token1];
+      const calculatedAmount = (Number(inputAmount) * Number(reserveOut)) / (Number(reserveIn));
+      setExpectedAmount(calculatedAmount.toFixed(2));
     } else {
       setExpectedAmount('');  // Reset if invalid input
     }
-  }, [amount0, reserve0, reserve1]);
-  // style={{ background: 'linear-gradient(to bottom right, #280315, #041c34)' }}
-
-  // Instantiate the mutation
-  const createSwapMutation = useSwapHook(token0, token1);
+  }, [inputAmount, mode, poolInfo, token0, token1]);
 
   // Define the submit handler
   const handleSwapSubmit = async () => {
     try {
       const payload = {
-        amountIn: amount0,
+        amountIn: inputAmount,
         amountOutMin: "0.0001", // Modify this if there's a different logic for minimum accepted amount
       };
       const response = await createSwapMutation.mutateAsync(payload);
-
       // Handle response here if needed
       console.log('Swap successful:', response);
+      setSwapResponse(response);
+      setShowDialog(true);  // Show the dialog on successful swap
       // Maybe show a success message to the user or perform further actions
 
     } catch (error) {
@@ -76,54 +99,98 @@ export function CreateOrder() {
       // Display an error message to the user
     }
   };
+
+
+
+
+  let price = 0;
+  if (poolInfo?.[inputToken] && poolInfo?.[outputToken]) {
+    const calculatedPrice = Number(poolInfo[token1]) / Number(poolInfo[token0]);
+    price = isNaN(calculatedPrice) ? 0 : parseFloat(calculatedPrice.toFixed(2));
+  }
+
   return (
-    <Card className="col-span-1">
-      <CardHeader>
-        <CardTitle className="text-2xl">Swap</CardTitle>
-        <CardDescription>{token0}-{token1}</CardDescription>
-      </CardHeader>
-      <CardContent className="grid gap-6">
-        <div className="grid gap-2 mb-4 w-[160px]">
-          <Label htmlFor="subject">Balance</Label>
-          <Input disabled id="subject" placeholder="Balance will appear here..." value={balances ? balances?.[token0] : null} />
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="grid gap-2">
-            <Label>Token</Label>
-            <span>{token0}</span>
-          </div>
-          <div className="grid gap-2">
-            <Label>Amount</Label>
-            <Input
-              id="inputAmount"
-              placeholder="Enter amount..."
-              value={amount0}
-              onChange={(e) => setAmount0(e.target.value)}
-            />
-          </div>
-        </div>
-        <div className='grid place-items-center -m-6'>
-          <SwapIcon />
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="grid gap-2">
-            <Label>Token</Label>
-            <span>{token1}</span>
-            <div className="grid gap-2">
-              <Label>Expected Amount</Label>
-              <Input
-                disabled
-                id="expectedAmount"
-                placeholder="Expected amount will appear here"
-                value={expectedAmount}
-              />
+    <Card className="col-span-1 border-none">
+      <AlertDialog>
+        <CardHeader>
+          <CardTitle className="text-2xl">
+            <div className="grid grid-flow-col justify-between">
+              <div> {token0}/{token1}  </div>
+              <div>{price !== null ? `${price.toString()} ${token1}` : 'Loading...'}</div>
             </div>
-          </div>
-        </div>
-      </CardContent>
-      <CardFooter className="justify-between mt-6 space-x-2">
-        <Button onClick={handleSwapSubmit} className="w-full">Trade</Button>
-      </CardFooter>
+          </CardTitle>
+          <CardDescription className="justify-end">Price</CardDescription>
+        </CardHeader>
+        <Tabs defaultValue="buy">
+          <TabsList className="grid w-full grid-cols-2 ">
+            <TabsTrigger value="buy" onClick={() => setMode('buy')}>Buy</TabsTrigger>
+            <TabsTrigger value="sell" onClick={() => setMode('sell')}>Sell</TabsTrigger>
+          </TabsList>
+          <TabsContent value="buy">
+            {/* You can move the below shared JSX to a new component or use a conditional render based on mode */}
+            <CardContent className="grid gap-4 py-2">
+              <div className="grid gap-2">
+                <Label>{inputToken}</Label>
+                <Input
+                  id="inputAmount"
+                  placeholder={`Enter amount of ${inputToken}...`}
+                  value={inputAmount}
+                  onChange={(e) => setInputAmount(e.target.value)}
+                />
+                <div className="text-xs text-muted-foreground mb-2"> Balance: {formatNumber(balances?.[inputToken] || "0")}</div>
+              </div>
+              <div className="grid gap-2">
+                <Label>Expected {outputToken}</Label>
+                <Input
+                  disabled
+                  id="expectedAmount"
+                  placeholder="Expected amount will appear here"
+                  value={expectedAmount}
+                />
+              </div>
+            </CardContent>
+            <CardFooter className="justify-between mt-6 space-x-2">
+              <AlertDialogTrigger className="w-full">
+                <Button onClick={handleSwapSubmit} className="w-full">Buy</Button>
+              </AlertDialogTrigger>
+            </CardFooter>
+          </TabsContent>
+          {/* Add similar TabsContent for the "sell" mode if needed, or use conditional rendering based on mode */}
+          <TabsContent value="sell">
+            <CardContent className="grid gap-4 py-2">
+              <div className="grid gap-2">
+                <Label>{token0}</Label>
+                <Input
+                  id="sellInputAmount"
+                  placeholder={`Enter amount of ${token1} to sell...`}
+                  value={inputAmount} // Reuse the state or create a separate state for the sell amount
+                  onChange={(e) => setInputAmount(e.target.value)}
+                />
+                <div className="text-xs text-muted-foreground mb-2"> Balance: {formatNumber(balances?.[inputToken] || "0")}</div>
+              </div>
+              <div className="grid gap-2">
+                <Label>Expected {token1}</Label>
+                <Input
+                  disabled
+                  id="sellExpectedAmount"
+                  placeholder="Expected amount will appear here"
+                  value={expectedAmount}
+                />
+              </div>
+            </CardContent>
+            <CardFooter className="justify-between mt-6 space-x-2">
+              <AlertDialogTrigger className="w-full">
+                <Button onClick={handleSwapSubmit} className="w-full">Sell</Button>
+              </AlertDialogTrigger>
+            </CardFooter>
+          </TabsContent>
+        </Tabs>
+        <SwapSuccessDialog
+          isOpen={showDialog}
+          onClose={() => setShowDialog(false)}
+          response={swapResponse}
+        />
+      </AlertDialog>
     </Card>);
 }
 
@@ -134,26 +201,45 @@ const SwapIcon = () => {
 }
 
 
-
-export function AlertDialogDemo() {
+export function SwapSuccessDialog({ isOpen, onClose, response }) {
+  console.log({ response })
+  const truncatedHash = response?.output?.hash
+    ? `${response.output.hash.slice(0, 6)}...${response.output.hash.slice(-4)}`
+    : '';
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button variant="outline">Show Dialog</Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
+    <>
+      <AlertDialogContent onClose={onClose}>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogTitle>Swap Successful!</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete your
-            account and remove your data from our servers.
+            <div style={{ fontWeight: 'bold', marginBottom: '10px' }}>
+              {response && `Amount IN: ${response.output.amountIn}`}
+            </div>
+            <div style={{ fontWeight: 'bold', marginBottom: '10px' }}>
+              {response && `Amount OUT: ${response.output.amountOut}`}
+            </div>
+            <div style={{ fontWeight: 'bold', wordBreak: 'break-all' }}>
+              {response && `Transaction ID: ${truncatedHash}`}
+            </div>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction>Continue</AlertDialogAction>
+          <AlertDialogCancel onClick={onClose}>Close</AlertDialogCancel>
         </AlertDialogFooter>
       </AlertDialogContent>
-    </AlertDialog>
-  )
+    </>
+  );
 }
+
+const formatNumber = (num) => {
+    const parts = num.toString().split(".");
+    const wholePartWithCommas = parseFloat(parts[0]).toLocaleString('en-US');
+    if (parts.length === 1) return wholePartWithCommas;  // No decimal part
+
+    const truncatedDecimalPart = parts[1].substring(0, 2);  // 2 decimal places
+    return `${wholePartWithCommas}.${truncatedDecimalPart}`;
+}
+
+const num = 999999999979999800.578484174519918059;
+console.log(formatNumber(num)); // Outputs: 999,999,999,979,999,800.57
+

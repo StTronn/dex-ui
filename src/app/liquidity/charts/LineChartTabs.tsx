@@ -10,22 +10,18 @@ import { useState } from "react";
 import { startOfYear, subDays } from "date-fns";
 import { Tabs, TabsContent, TabsTrigger, TabsList } from "@/components/ui/tabs";
 import { useGetGraphData } from "@/api/useGraphData";
-import { useAtom } from "jotai";
-import { selectedPairAtom } from "@/atoms/selectedPairAtom";
 
 
 const dataFormatter = (number: number) => `${Intl.NumberFormat("us").format(number).toString()}`;
 
 export default function LineChartTabs() {
 
-  const [selectedPair] = useAtom(selectedPairAtom);
-  const [token0, token1] = selectedPair.split('/');
   const [selectedPeriod, setSelectedPeriod] = useState("YTD");
   const [selectedIndex, setSelectedIndex] = useState(4);
 
   const { data: apiData, isLoading, isError } = useGetGraphData({
-    from_currency: token0,
-    to_currency: token1,
+    from_currency: "INR",
+    to_currency: "SGD",
     from_date: "2022-01-01",
     to_date: "2023-01-01",
   });

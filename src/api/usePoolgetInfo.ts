@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 import { axiosInstanceAdapter } from './'; // Assuming you've set up axiosInstance in your project
-import { Coins } from '@/constants';
 
 export const useGetPoolInfo = (coin0: string, coin1: string) => {
 
@@ -25,7 +24,6 @@ export const useGetPoolInfo = (coin0: string, coin1: string) => {
 
 interface PoolInfoResponse {
   [key: string]: string
-  [key: string]: string;
   totalLiquidity: string;
   token0Price: string;
   token1Price: string;
