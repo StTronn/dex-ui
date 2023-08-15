@@ -35,8 +35,11 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { useSwapOrder } from "@/api/useSwapToken"
+import { Separator } from "@/components/ui/separator"
 import { formatEtherValue } from "@/utils"
 import { ethers } from "ethers"
+import { Badge } from "@/components/ui/badge"
+import { usePreviewRoute } from "@/api/usePreviewRoute"
 
 export function CreateOrder() {
   const [selectedPair] = useAtom(selectedPairAtom);
@@ -45,18 +48,20 @@ export function CreateOrder() {
   const { data: poolInfo, isLoading, isError, error } = useGetPoolInfo(token0, token1);
   const { data: balances, isLoading: isBalanceLoading } = useGetTokenBalances();
 
+  const [path, setPath] = useState(false); // 'buy' or 'sell'
+  const [showPathViz, setShowPathViz] = useState(false); // 'buy' or 'sell'
   const [mode, setMode] = useState('buy'); // 'buy' or 'sell'
   const [inputToken, setInputToken] = useState(token0);
   const [outputToken, setOutputToken] = useState(token1);
   const [inputAmount, setInputAmount] = useState('');
   const [expectedAmount, setExpectedAmount] = useState('');
 
+  const { mutate: getPreivewRoute } = usePreviewRoute();
 
 
   const [showDialog, setShowDialog] = useState(false);
   const [swapResponse, setSwapResponse] = useState(null);
 
-  console.log({ showDialog })
   const createSwapMutation = useSwapOrder(inputToken, outputToken);
 
   useEffect(() => {
@@ -100,6 +105,16 @@ export function CreateOrder() {
     }
   };
 
+
+  const handlePathVizShow = () => {
+    getPreivewRoute({ swapPool: inputToken + "/" + outputToken, swapAmount: Number(inputAmount) }, {
+      onSuccess: (data) => {
+        console.log("tranformData", transformData(data.data))
+        setSh
+      }
+    })
+    setShowPathViz(true);
+  }
 
 
 
@@ -149,11 +164,13 @@ export function CreateOrder() {
                 />
               </div>
             </CardContent>
-            <CardFooter className="justify-between mt-6 space-x-2">
-              <AlertDialogTrigger className="w-full">
-                <Button onClick={handleSwapSubmit} className="w-full">Buy</Button>
+            <CardFooter className="grid grid-flow-row gap-4 mt-6">
+              <AlertDialogTrigger className="">
+                <Button onClick={handleSwapSubmit} className="w-full">Sell</Button>
               </AlertDialogTrigger>
+              <Button variant="secondary" onClick={handlePathVizShow} className="">Preview</Button>
             </CardFooter>
+            {showPathViz && <PathViz amountIn={inputAmount} amountOut={expectedAmount} />}
           </TabsContent>
           {/* Add similar TabsContent for the "sell" mode if needed, or use conditional rendering based on mode */}
           <TabsContent value="sell">
@@ -178,11 +195,13 @@ export function CreateOrder() {
                 />
               </div>
             </CardContent>
-            <CardFooter className="justify-between mt-6 space-x-2">
-              <AlertDialogTrigger className="w-full">
+            <CardFooter className="grid grid-flow-row gap-4 mt-6">
+              <AlertDialogTrigger className="">
                 <Button onClick={handleSwapSubmit} className="w-full">Sell</Button>
               </AlertDialogTrigger>
+              <Button variant="secondary" onClick={handlePathVizShow} className="">Preview</Button>
             </CardFooter>
+            {showPathViz && <PathViz amountIn={inputAmount} amountOut={expectedAmount} />}
           </TabsContent>
         </Tabs>
         <SwapSuccessDialog
@@ -231,15 +250,71 @@ export function SwapSuccessDialog({ isOpen, onClose, response }) {
   );
 }
 
-const formatNumber = (num) => {
-    const parts = num.toString().split(".");
-    const wholePartWithCommas = parseFloat(parts[0]).toLocaleString('en-US');
-    if (parts.length === 1) return wholePartWithCommas;  // No decimal part
 
-    const truncatedDecimalPart = parts[1].substring(0, 2);  // 2 decimal places
-    return `${wholePartWithCommas}.${truncatedDecimalPart}`;
+
+export function PathViz({ amountIn, amountOut }) {
+  return (
+    <div className="grid gap-2">
+      <div className="px-6 py-2">
+        <div className="space-y-1">
+          <h4 className="text-sm font-medium leading-none">Best Route</h4>
+        </div>
+        <Separator className="my-4" />
+        <div className="grid gap-2">
+          <div className="flex w-full h-5 items-center space-x-2  justify-between text-sm">
+            <div className=""> <Badge variant="default">{amountIn}</Badge></div>
+            <Separator orientation="vertical" />
+            <Badge className="" variant="outline">INR/SGD/THB</Badge>
+            <Separator orientation="vertical" />
+            <Badge className="" variant="destructive">{amountOut}</Badge>
+          </div>
+        </div>
+      </div>
+      <div className="px-6 py-2">
+        <div className="space-y-1">
+          <h4 className="text-sm font-medium leading-none">Direct Route</h4>
+        </div>
+        <Separator className="my-4" />
+        <div className="grid gap-2">
+          <div className="flex w-full h-5 items-center space-x-2  justify-between text-sm">
+            <div className=""> <Badge variant="default">{amountIn}</Badge></div>
+            <Separator orientation="vertical" />
+            <Badge className="" variant="outline">INR/THB</Badge>
+            <Separator orientation="vertical" />
+            <Badge className="" variant="destructive">{(Number(amountOut)*0.985).toFixed(2)}</Badge>
+          </div>
+          <div className="flex w-full h-5 items-center space-x-2  justify-between text-sm">
+            <div className=""> <Badge variant="default">{amountIn}</Badge></div>
+            <Separator orientation="vertical" />
+            <Badge className="" variant="outline">INR/THB</Badge>
+            <Separator orientation="vertical" />
+            <Badge className="" variant="destructive">{(Number(amountOut)*0.985).toFixed(2)}</Badge>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 }
 
-const num = 999999999979999800.578484174519918059;
-console.log(formatNumber(num)); // Outputs: 999,999,999,979,999,800.57
+const formatNumber = (num) => {
+  const parts = num.toString().split(".");
+  const wholePartWithCommas = parseFloat(parts[0]).toLocaleString('en-US');
+  if (parts.length === 1) return wholePartWithCommas;  // No decimal part
 
+  const truncatedDecimalPart = parts[1].substring(0, 2);  // 2 decimal places
+  return `${wholePartWithCommas}.${truncatedDecimalPart}`;
+}
+
+const transformData = (data) => {
+  return data.map(item => {
+    return Object.entries(item.path).map(([inValue, pathObj]) => {
+      const sum = Object.values(pathObj).reduce((acc, value) => acc + value, 0);
+      const path = Object.keys(pathObj).join("/");
+      return {
+        in: inValue,
+        path,
+        out: sum.toFixed(2)  // Convert to string with 2 decimal places
+      };
+    });
+  });
+}

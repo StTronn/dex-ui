@@ -6,9 +6,13 @@ import { ethers } from "ethers";
 const Balance = () => {
   return (
     <div className="grid gap-8 grid-cols-1 h-full px-4 py-6 lg:px-8 ">
-      <Section title="Balances" description="Balances of all your currency holdings">
+      <Section title="Currency" description="Balances of User currencies holding">
+        <OverviewBalance type="currency" />
+      </Section>
+      <Section title="Liquidity Tokens" description="Liquidity Tokens Held by user">
         <Overview type="currency" />
       </Section>
+
     </div>
   )
 }
@@ -43,11 +47,44 @@ const Overview = ({ type }: OverviewProps) => {
 
     return (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 lg:gap-8 col-span-2">
-        {Object.keys(balances).map(currency => (
+        {Object.keys(balances.liquidity.liquidity).map(currency => (
           <BalanceCard
             key={currency}
             title={`${currency.toUpperCase()} Balance`}
-            balance={balances[currency]}
+            balance={balances.liquidity.liquidity[currency]}
+          />
+        ))}
+      </div>
+    );
+  }
+
+  // Default return for liquidity type for now.
+  return <div>Liquidity Overview</div>;
+}
+
+const OverviewBalance = ({ type }: OverviewProps) => {
+  const { data, isLoading, isError, error } = useGetAccountBalances();
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (isError) {
+    return <div>Error: {error?.message}</div>;
+  }
+
+  // We assume here that for liquidity type, you'll have another way to fetch data. 
+  // For now, we focus on the currency type.
+  if (type === "currency") {
+    const balances = data.data;
+
+    return (
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 lg:gap-8 col-span-2">
+        {Object.keys(balances.liquidity.balances).map(currency => (
+          <BalanceCard
+            key={currency}
+            title={`${currency.toUpperCase()} Balance`}
+            balance={balances.liquidity.balances[currency]}
           />
         ))}
       </div>
@@ -64,21 +101,9 @@ const BalanceCard = ({ title, balance }: BalanceCardProps) => (
       <CardTitle className="text-sm font-medium">
         {title}
       </CardTitle>
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="2"
-        className="h-4 w-4 text-muted-foreground"
-      >
-        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-      </svg>
     </CardHeader>
     <CardContent>
-      <div className="text-2xl font-bold">{formatBalance(balance)}</div>
+      <div className="text-2xl font-bold">{formatNumberForUI(balance)}</div>
       {/* You can add more details here if needed */}
     </CardContent>
   </Card>
@@ -106,18 +131,17 @@ type BalanceCardProps = {
   balance: string;
 };
 
-function formatBalance(balance: string): string {
-  // Convert the balance to Ether first
-  const etherBalance = parseFloat(balance);
+function formatNumberForUI(value) {
+  // Convert to Number and then to string to remove leading zeros
+  const nValue = parseFloat(value).toLocaleString('en-US', {
+    maximumFractionDigits: 2,
+    minimumFractionDigits: 2
+  });
 
-  // Check the magnitude and adjust accordingly
-  if (etherBalance >= 1_000_000_000) {
-    return (etherBalance / 1_000_000_000_000_000_0 - (Math.random() * 1_00)).toFixed(0) + ' Thousand';
-  } else if (etherBalance >= 1_000_000) {
-    return (etherBalance / 1_000_000).toFixed(0) + ' Million';
-  } else {
-    // Convert the balance to string and add commas
-    return etherBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  if (nValue.indexOf('.') > -1 && nValue.split('.')[1] === '00') {
+    return nValue.split('.')[0];  // Return value without redundant .00
   }
+
+  return nValue;
 }
 export default Balance;

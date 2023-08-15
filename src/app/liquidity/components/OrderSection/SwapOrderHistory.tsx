@@ -18,12 +18,13 @@ import {
 import { useAtom } from "jotai";
 import { selectedPairAtom } from "@/atoms/selectedPairAtom";
 import { useGetMintEvents } from "@/api/useGetMintEvents";
+import { useEffect } from "react";
 
 export const useSwapOrderHistory = (coin1: string, coin2: string) => {
   const { data, ...rest } = useGetMintEvents(coin1, coin2);
 
   const formattedData = data?.data.map((event) => ({
-    sender: event.sender.slice(0, 9) + "...", // Assuming you'll have a timestamp in your data. Replace this with actual time.
+    time: event.time, // Assuming you'll have a timestamp in your data. Replace this with actual time.
     [coin1]: Number(event[coin1]),  // You can adjust depending on how you want to represent the volume
     [coin2]: Number(event[coin2]) / Number(event[coin1]),
   }));
@@ -104,7 +105,7 @@ export function TradeHistoryTable() {
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Sender</TableHead>
+          <TableHead>Time</TableHead>
           <TableHead>{token0}</TableHead>
           <TableHead>{token1}</TableHead>
         </TableRow>
@@ -112,7 +113,7 @@ export function TradeHistoryTable() {
       <TableBody>
         {data.map((trade, index) => (
           <TableRow key={index}>
-            <TableCell className="w-[240px]">{trade.sender}</TableCell>
+            <TableCell className="w-[240px]">{new Date(trade.time).toLocaleTimeString()}</TableCell>
             <TableCell>{trade[token0].toLocaleString()}</TableCell>
             <TableCell>{trade[token1].toLocaleString()}</TableCell>
           </TableRow>
@@ -121,3 +122,4 @@ export function TradeHistoryTable() {
     </Table>
   );
 }
+

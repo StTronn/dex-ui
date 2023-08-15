@@ -33,7 +33,7 @@ data.forEach(item => {
     initialNodes.push({ id: `node-${nodeId}`, position: { x: 0, y: positionY }, data: { label: pathKey } });
     let previousNodeId = `node-${nodeId}`;
     nodeId++;
-    positionY += 100; 
+    positionY += 100;
 
     // Add the path values nodes and edges
     pathValues.forEach((pathValue, idx) => {
@@ -48,11 +48,11 @@ data.forEach(item => {
   });
   positionY += 100;  // Extra spacing between different data objects
 });
-
-export default function App() {
+const defaultViewport = { zoom: 0.2 };
+export default function RouteVisualizer() {
   return (
-    <div style={{ width: '100vw', height: '100vh' }}>
-      <ReactFlow nodes={initialNodes} edges={initialEdges} />
+    <div style={{ width: '360px', height: '400px' }}>
+      <ReactFlow defaultViewport={defaultViewport} nodes={initialNodes} edges={initialEdges} />
     </div>
   );
 }

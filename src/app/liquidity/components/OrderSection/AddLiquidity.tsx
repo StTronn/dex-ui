@@ -96,7 +96,7 @@ export function AddLiquidity() {
   const divisor1 = BigInt("1000000000000000000"); // 10^18
   const divisor2 = BigInt(2);
 
-  const userLiquidity = (BigInt(strNumber) / divisor1) / divisor2;
+  const userLiquidity = strNumber;
 
   return (
     <Card className="col-span-1 border-none">

@@ -26,7 +26,6 @@ import { useAtom } from "jotai"
 import { selectedPairAtom } from "@/atoms/selectedPairAtom"
 import { CURRENCY_PAIRS } from "@/constants"
 import TeamSwitcher from "./components/team-switcher"
-import RouteVisualizer from "../trade/components/OrderSection/RouteVisualizer"
 
 
 const sidebarNavItems = [
@@ -102,7 +101,6 @@ export default function MusicPage() {
             </div>
           </div>
         </div>
-        <RouteVisualizer />
       </div>
     </>
   )
