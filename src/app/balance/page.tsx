@@ -2,18 +2,23 @@
 import { useGetAccountBalances } from "@/api/useGetAccountBalances";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { ethers } from "ethers";
+import { MainNav } from "../liquidity/components/main-nav";
+import { TopBar } from "../liquidity/components/top-bar";
 
 const Balance = () => {
   return (
-    <div className="grid gap-8 grid-cols-1 h-full px-4 py-6 lg:px-8 ">
-      <Section title="Currency" description="Balances of User currencies holding">
-        <OverviewBalance type="currency" />
-      </Section>
-      <Section title="Liquidity Tokens" description="Liquidity Tokens Held by user">
-        <Overview type="currency" />
-      </Section>
+    <>
+      <TopBar />
+      <div className="grid gap-8 grid-cols-1 h-full px-4 py-6 lg:px-8 ">
+        <Section title="Currency" description="Balances of User currencies holding">
+          <OverviewBalance type="currency" />
+        </Section>
+        <Section title="Liquidity Tokens" description="Liquidity Tokens Held by user">
+          <Overview type="currency" />
+        </Section>
 
-    </div>
+      </div>
+    </>
   )
 }
 

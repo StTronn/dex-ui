@@ -26,7 +26,7 @@ export const useSwapOrderHistory = (coin1: string, coin2: string) => {
   const formattedData = data?.data.map((event) => ({
     time: event.time, // Assuming you'll have a timestamp in your data. Replace this with actual time.
     [coin1]: Number(event[coin1]),  // You can adjust depending on how you want to represent the volume
-    [coin2]: Number(event[coin2]) / Number(event[coin1]),
+    [coin2]: Number(event[coin2]),
   }));
   console.log({ formattedData })
 
@@ -38,7 +38,7 @@ export const RecentSalesCard = () => {
   return (
     <Card className="col-span-1">
       <CardHeader>
-        <CardTitle>All Liquidity Minted</CardTitle>
+        <CardTitle>All Liquidity Burnt</CardTitle>
         <CardDescription></CardDescription>
       </CardHeader>
       <CardContent>
@@ -106,16 +106,16 @@ export function TradeHistoryTable() {
       <TableHeader>
         <TableRow>
           <TableHead>Time</TableHead>
-          <TableHead>{token0}</TableHead>
-          <TableHead>{token1}</TableHead>
+          <TableHead>{token0} Price</TableHead>
+          <TableHead>{token1} Price</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {data.map((trade, index) => (
           <TableRow key={index}>
             <TableCell className="w-[240px]">{new Date(trade.time).toLocaleTimeString()}</TableCell>
-            <TableCell>{trade[token0].toLocaleString()}</TableCell>
-            <TableCell>{trade[token1].toLocaleString()}</TableCell>
+            <TableCell>{trade[token0].toString().slice(0,Math.min(trade[token0].toString().length-1,4))}</TableCell>
+            <TableCell>{trade[token1].toString().slice(0,Math.min(trade[token1].toString().length-1,4))}</TableCell>
           </TableRow>
         ))}
       </TableBody>

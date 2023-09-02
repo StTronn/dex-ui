@@ -9,7 +9,6 @@ export const OrderSection = () => {
 
       <TradeHistoryUserCard />
       <RecentSalesCard />
-      <Overview />
 
     </div>
   )

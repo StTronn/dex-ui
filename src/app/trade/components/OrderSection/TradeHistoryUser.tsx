@@ -43,7 +43,9 @@ export function TradeHistoryTable() {
 
   const [selectedPair] = useAtom(selectedPairAtom);
   const [token0, token1] = selectedPair.split('/');
-  const { data, isLoading, isError, error } = useSwapOrderHistory(token0, token1);
+  let { data, isLoading, isError, error } = useSwapOrderHistory(token0, token1);
+
+  data = data?.reverse()
 
   if (data?.length === 0) {
     return (

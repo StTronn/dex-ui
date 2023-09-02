@@ -110,7 +110,6 @@ export function CreateOrder() {
     getPreivewRoute({ swapPool: inputToken + "/" + outputToken, swapAmount: Number(inputAmount) }, {
       onSuccess: (data) => {
         console.log("tranformData", transformData(data.data))
-        setSh
       }
     })
     setShowPathViz(true);
@@ -148,7 +147,7 @@ export function CreateOrder() {
                 <Label>{inputToken}</Label>
                 <Input
                   id="inputAmount"
-                  placeholder={`Enter amount of ${inputToken}...`}
+                  placeholder={`Enter amount`}
                   value={inputAmount}
                   onChange={(e) => setInputAmount(e.target.value)}
                 />
@@ -159,14 +158,14 @@ export function CreateOrder() {
                 <Input
                   disabled
                   id="expectedAmount"
-                  placeholder="Expected amount will appear here"
+                  placeholder="Expected amount"
                   value={expectedAmount}
                 />
               </div>
             </CardContent>
             <CardFooter className="grid grid-flow-row gap-4 mt-6">
               <AlertDialogTrigger className="">
-                <Button onClick={handleSwapSubmit} className="w-full">Sell</Button>
+                <Button onClick={handleSwapSubmit} className="w-full">Buy</Button>
               </AlertDialogTrigger>
               <Button variant="secondary" onClick={handlePathVizShow} className="">Preview</Button>
             </CardFooter>
@@ -179,7 +178,7 @@ export function CreateOrder() {
                 <Label>{token0}</Label>
                 <Input
                   id="sellInputAmount"
-                  placeholder={`Enter amount of ${token1} to sell...`}
+                  placeholder={`Enter amount`}
                   value={inputAmount} // Reuse the state or create a separate state for the sell amount
                   onChange={(e) => setInputAmount(e.target.value)}
                 />
@@ -190,7 +189,7 @@ export function CreateOrder() {
                 <Input
                   disabled
                   id="sellExpectedAmount"
-                  placeholder="Expected amount will appear here"
+                  placeholder="Expected amount"
                   value={expectedAmount}
                 />
               </div>

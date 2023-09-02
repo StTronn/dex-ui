@@ -98,6 +98,7 @@ export function TradeHistoryTable() {
   if (isError || !data) {
     return <div>Error: {error?.message}</div>;
   }
+  data = data?.reverse()
 
   data = data?.length >= 10 ? data?.slice(0, 9) : data;
   return (

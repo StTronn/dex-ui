@@ -16,7 +16,7 @@ export function MainNav({ className, ...props }: React.HTMLAttributes<HTMLElemen
               : "text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
           }
         >
-          Trade
+          Spot
         </div>
       </Link>
       <Link href="/liquidity">
@@ -27,11 +27,11 @@ export function MainNav({ className, ...props }: React.HTMLAttributes<HTMLElemen
               : "text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
           }
         >
-          Liquidity
+          Pools
         </div>
       </Link>
       {/* ... Similar logic for the other links ... */}
-      <Link href="/balances">
+      <Link href="/balance">
         <div
           className={
             typeof window !== 'undefined' && window.location.pathname === "/balance"

@@ -55,12 +55,12 @@ export default function AuthenticationPage() {
             >
               <path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3" />
             </svg>
-            Acme Inc
+            Groww 
           </div>
           <div className="relative z-20 mt-auto">
             <blockquote className="space-y-2">
-              <p className="text-lg">Cross border Payments</p>
-              <footer className="text-sm">Groww</footer>
+              <p className="text-lg">G20 TechSprint 2023</p>
+              <footer className="text-sm">Problem Statement 2</footer>
             </blockquote>
           </div>
         </div>
@@ -73,23 +73,6 @@ export default function AuthenticationPage() {
               </p>
             </div>
             <UserAuthForm />
-            <p className="px-8 text-center text-sm text-muted-foreground">
-              By clicking continue, you agree to our{" "}
-              <Link
-                href="/terms"
-                className="underline underline-offset-4 hover:text-primary"
-              >
-                Terms of Service
-              </Link>{" "}
-              and{" "}
-              <Link
-                href="/privacy"
-                className="underline underline-offset-4 hover:text-primary"
-              >
-                Privacy Policy
-              </Link>
-              .
-            </p>
           </div>
         </div>
       </div>
