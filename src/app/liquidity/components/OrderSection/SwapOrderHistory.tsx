@@ -19,6 +19,7 @@ import { useAtom } from "jotai";
 import { selectedPairAtom } from "@/atoms/selectedPairAtom";
 import { useGetMintEvents } from "@/api/useGetMintEvents";
 import { useEffect } from "react";
+import { formatNumber } from "@/utils";
 
 export const useSwapOrderHistory = (coin1: string, coin2: string) => {
   const { data, ...rest } = useGetMintEvents(coin1, coin2);
@@ -29,7 +30,6 @@ export const useSwapOrderHistory = (coin1: string, coin2: string) => {
     [coin2]: Number(event[coin2]),
     type: event.type,
   }));
-  console.log({ formattedData })
 
   return { ...rest, data: formattedData };
 };
@@ -118,7 +118,7 @@ export function TradeHistoryTable() {
           <TableRow key={index}>
             <TableCell className="w-[240px]">{new Date(trade.time).toLocaleTimeString()}</TableCell>
             <TableCell className="w-[240px]">{trade.type}</TableCell>
-            <TableCell>{Number(Number(trade[token0]).toFixed(2)).toLocaleString()}</TableCell>
+            <TableCell>{formatNumber(Number(Number(trade[token0]).toFixed(2)).toLocaleString())}</TableCell>
             <TableCell>{Number(Number(trade[token1]).toFixed(2)).toLocaleString()}</TableCell>
           </TableRow>
         ))}

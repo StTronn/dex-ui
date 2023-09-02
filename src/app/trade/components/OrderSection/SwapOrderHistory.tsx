@@ -18,6 +18,7 @@ import {
 import { useGetSwapEvents } from "@/api/useGetSwapEvents";
 import { useAtom } from "jotai";
 import { selectedPairAtom } from "@/atoms/selectedPairAtom";
+import { formatNumber } from "@/utils";
 
 export const useSwapOrderHistory = (coin1: string, coin2: string) => {
   const { data, ...rest } = useGetSwapEvents(coin1, coin2);
@@ -27,7 +28,6 @@ export const useSwapOrderHistory = (coin1: string, coin2: string) => {
     [coin1]: Number(event[coin1]),  // You can adjust depending on how you want to represent the volume
     [coin2]: Number(event[coin2]) / Number(event[coin1]),
   }));
-  console.log({ formattedData })
 
   return { ...rest, data: formattedData };
 };
@@ -47,43 +47,6 @@ export const RecentSalesCard = () => {
   );
 }
 
-const trades = [
-  {
-    price: "$250.00",
-    volume: "1.5 BTC",
-    time: "12:45 PM",
-  },
-  {
-    price: "$150.00",
-    volume: "0.75 BTC",
-    time: "12:46 PM",
-  },
-  {
-    price: "$350.00",
-    volume: "2 BTC",
-    time: "1:15 PM",
-  },
-  {
-    price: "$450.00",
-    volume: "2.5 BTC",
-    time: "1:30 PM",
-  },
-  {
-    price: "$550.00",
-    volume: "3 BTC",
-    time: "2:00 PM",
-  },
-  {
-    price: "$200.00",
-    volume: "1 BTC",
-    time: "2:15 PM",
-  },
-  {
-    price: "$300.00",
-    volume: "1.25 BTC",
-    time: "2:45 PM",
-  },
-]
 
 export function TradeHistoryTable() {
 
@@ -106,16 +69,16 @@ export function TradeHistoryTable() {
       <TableHeader>
         <TableRow>
           <TableHead>Time</TableHead>
-          <TableHead>{token0}</TableHead>
-          <TableHead>{token1}</TableHead>
+          <TableHead>Amount</TableHead>
+          <TableHead>price</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {data.map((trade, index) => (
           <TableRow key={index}>
             <TableCell className="w-[240px]">{new Date(trade.time).toLocaleTimeString()}</TableCell>
-            <TableCell>{trade[token0].toLocaleString()}</TableCell>
-            <TableCell>{trade[token1].toLocaleString()}</TableCell>
+            <TableCell>{formatNumber(trade[token0])}</TableCell>
+            <TableCell>{trade ? formatNumber(Number(trade?.[token1])) : '1'}</TableCell>
           </TableRow>
         ))}
       </TableBody>

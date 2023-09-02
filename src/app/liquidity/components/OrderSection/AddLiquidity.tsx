@@ -1,7 +1,5 @@
-import { useGetTokenBalances } from "@/api/useGetTokenBalances"
 import { useGetPoolInfo } from "@/api/usePoolgetInfo"
 import { selectedPairAtom } from "@/atoms/selectedPairAtom"
-import { ethers } from 'ethers';
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -14,12 +12,14 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useAtom } from "jotai"
+import { Separator } from "@/components/ui/separator"
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
+import { Badge } from "@/components/ui/badge"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -35,9 +35,13 @@ import { useEffect, useState } from "react"
 
 import { useRemoveLiquidity } from "@/api/useRemoveLiquidity"
 import { useAddLiquidity } from "@/api/useAddLiquidity"
-import { formatEtherValue } from "@/utils";
+import { formatEtherValue, formatNumber } from "@/utils";
+import { useGetUserLiquidity } from "@/api/useGetUserLiquidity";
+import { useGetTokenBalances } from "@/api/useGetTokenBalances"
 
 export function AddLiquidity() {
+
+  const { data: balances, isLoading: isBalanceLoading } = useGetTokenBalances();
   const [showDialog, setShowDialog] = useState(false);
   const [swapResponse, setSwapResponse] = useState(null);
   const [selectedPair] = useAtom(selectedPairAtom);
@@ -47,13 +51,12 @@ export function AddLiquidity() {
   const [amount1Desired, setAmount1Desired] = useState('');
   const [amount2Desired, setAmount2Desired] = useState('');
 
-  const { data: poolInfo, isLoading, isError, error } = useGetPoolInfo(token0, token1);
-  const { data: balances } = useGetTokenBalances();
+  const { data, isLoading, isError } = useGetUserLiquidity(token0, token1);
+  const { data: poolInfo } = useGetPoolInfo(token0, token1);
 
   const addLiquidityMutation = useAddLiquidity(token0, token1);
   const removeLiquidityMutation = useRemoveLiquidity(token0, token1);
 
-  console.log({ showDialog })
   useEffect(() => {
     if (amount1Desired) {
       const reserve0 = parseFloat(poolInfo?.[token0] || "0");
@@ -78,7 +81,6 @@ export function AddLiquidity() {
       const response = await addLiquidityMutation.mutateAsync(payload);
       setSwapResponse(response)
       setShowDialog(true);  // Show the dialog on successful swap
-      console.log('Liquidity added successfully:', response);
       // Handle the response or show a success message to the user
 
     } catch (error) {
@@ -99,7 +101,6 @@ export function AddLiquidity() {
       setSwapResponse(response)
       setShowDialog(true);  // Show the dialog on successful swap
 
-      console.log('Liquidity removed successfully:', response);
       // Handle the response or show a success message to the user
 
     } catch (error) {
@@ -113,7 +114,6 @@ export function AddLiquidity() {
   const divisor1 = BigInt("1000000000000000000"); // 10^18
   const divisor2 = BigInt(2);
 
-  const userLiquidity = strNumber;
 
   return (
     <Card className="col-span-1 border-none">
@@ -122,7 +122,7 @@ export function AddLiquidity() {
           <CardTitle className="text-2xl">
             <div className="grid grid-flow-col justify-between">
               <div> {token0}-{token1}  </div>
-              <div>{formatEtherValue(poolInfo?.totalLiquidity || "0")}</div>
+              <div>{formatNumber(formatEtherValue(poolInfo?.totalLiquidity || "0"))}</div>
             </div>
           </CardTitle>
           <CardDescription className="justify-end">Liquidity</CardDescription>
@@ -130,7 +130,7 @@ export function AddLiquidity() {
         <Tabs defaultValue="add">
           <TabsList className="grid w-full grid-cols-2 ">
             <TabsTrigger value="add">Add</TabsTrigger>
-            <TabsTrigger value="burn">Burn</TabsTrigger>
+            <TabsTrigger value="burn">Remove</TabsTrigger>
           </TabsList>
           <TabsContent value="add">
             <CardContent className="grid gap-4 py-2">
@@ -138,19 +138,22 @@ export function AddLiquidity() {
                 <Label htmlFor="amount1">{token0}</Label>
                 <Input
                   id="amount1"
-                  placeholder={`Enter amount of ${token0}...`}
+                  placeholder={`Enter amount`}
                   value={amount1Desired}
                   onChange={(e) => setAmount1Desired(e.target.value)}
                 />
+
+                <div className="text-xs text-muted-foreground mb-2"> Balance: {formatNumber(balances?.[token0] || "0")}</div>
               </div>
               <div className="grid gap-2 ">
                 <Label htmlFor="amount2">{token1}</Label>
                 <Input
                   id="amount2"
-                  placeholder={`Enter amount of ${token1}...`}
+                  placeholder={`Enter amount`}
                   value={amount2Desired}
                   onChange={(e) => setAmount2Desired(e.target.value)}
                 />
+                <div className="text-xs text-muted-foreground mb-2"> Balance: {formatNumber(balances?.[token1] || "0")}</div>
               </div>
             </CardContent>
             <CardFooter className="justify-between mt-6 space-x-2">
@@ -161,20 +164,11 @@ export function AddLiquidity() {
           </TabsContent>
           <TabsContent value="burn">
             <CardContent className="grid gap-4 py-2">
-              <div className="grid gap-2 ">
-                <Label htmlFor="liquidity">Liquidity Balance</Label>
-                <Input
-                  disabled
-                  id="liquidity"
-                  placeholder="Liquidity will appear here..."
-                  value={userLiquidity.toString()}
-                />
-              </div>
               <div className="grid gap-2">
                 <Label>Amount to Remove</Label>
                 <Input
                   id="liquidityAmount"
-                  placeholder="Enter amount to remove..."
+                  placeholder="Enter amount"
                   value={liquidityAmount}
                   onChange={(e) => setLiquidityAmount(e.target.value)}
                 />
@@ -187,6 +181,7 @@ export function AddLiquidity() {
             </CardFooter>
           </TabsContent>
         </Tabs>
+        <ShowBalance amount={formatNumber(data?.data?.liquidityTokens)} />
 
         <SwapSuccessDialog
           isOpen={showDialog}
@@ -202,8 +197,6 @@ export function AddLiquidity() {
 
 
 export function SwapSuccessDialog({ isOpen, onClose, response, token0, token1 }) {
-  console.log({ response })
-  console.log(response?.output[token0])
   const truncatedHash = response?.output?.hash
     ? `${response.output.hash.slice(0, 6)}...${response.output.hash.slice(-4)}`
     : '';
@@ -229,3 +222,14 @@ export function SwapSuccessDialog({ isOpen, onClose, response, token0, token1 })
   );
 }
 
+
+const ShowBalance = ({ amount }) => {
+  return (
+    <div className="flex w-full h-5 items-center space-x-2 px-6  text-sm">
+      <div className="">User Balance</div>
+      <Separator orientation="vertical" />
+      <div className=""> <Badge variant="default">{amount}</Badge></div>
+    </div>
+  )
+
+}

@@ -17,7 +17,6 @@ export const useLogin = () => {
 
   return useMutation(login, {
     onSuccess: (data) => {
-      console.log({ data })
       setAuthToken(data.data.authToken)
       localStorage.setItem('authToken', data.data.authToken);
     }

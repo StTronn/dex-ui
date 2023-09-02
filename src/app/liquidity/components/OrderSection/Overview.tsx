@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useAtom } from 'jotai';
 import { selectedPairAtom } from '@/atoms/selectedPairAtom';
 import { ethers } from 'ethers';
+import { formatNumber } from '@/utils';
 
 
 export const Overview = () => {
@@ -32,7 +33,7 @@ export const Overview = () => {
           <CardTitle className="text-sm font-medium">{token0} Reserve</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{formatValue(data[token0])}</div>
+          <div className="text-2xl font-bold">{formatNumber(formatValue(data[token0]))}</div>
         </CardContent>
       </Card>
 
@@ -42,7 +43,7 @@ export const Overview = () => {
           <CardTitle className="text-sm font-medium">{token1} Reserve</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{formatValue(data[token1])}</div>
+          <div className="text-2xl font-bold">{formatNumber(formatValue(data[token1]))}</div>
         </CardContent>
       </Card>
 
@@ -52,7 +53,7 @@ export const Overview = () => {
           <CardTitle className="text-sm font-medium">Total Liquidity</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{formatValue(data.totalLiquidity)}</div>
+          <div className="text-2xl font-bold">{formatNumber(formatValue(data.totalLiquidity))}</div>
         </CardContent>
       </Card>
     </div>

@@ -36,7 +36,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { useSwapOrder } from "@/api/useSwapToken"
 import { Separator } from "@/components/ui/separator"
-import { formatEtherValue } from "@/utils"
+import { formatEtherValue, formatNumber } from "@/utils"
 import { ethers } from "ethers"
 import { Badge } from "@/components/ui/badge"
 import { usePreviewRoute } from "@/api/usePreviewRoute"
@@ -94,7 +94,6 @@ export function CreateOrder() {
       };
       const response = await createSwapMutation.mutateAsync(payload);
       // Handle response here if needed
-      console.log('Swap successful:', response);
       setSwapResponse(response);
       setShowDialog(true);  // Show the dialog on successful swap
       // Maybe show a success message to the user or perform further actions
@@ -120,7 +119,8 @@ export function CreateOrder() {
   let price = 0;
   if (poolInfo?.[inputToken] && poolInfo?.[outputToken]) {
     const calculatedPrice = Number(poolInfo[token1]) / Number(poolInfo[token0]);
-    price = isNaN(calculatedPrice) ? 0 : parseFloat(calculatedPrice.toFixed(2));
+    price = isNaN(calculatedPrice) ? 0 : formatNumber(calculatedPrice);
+
   }
 
   return (
@@ -220,7 +220,6 @@ const SwapIcon = () => {
 
 
 export function SwapSuccessDialog({ isOpen, onClose, response }) {
-  console.log({ response })
   const truncatedHash = response?.output?.hash
     ? `${response.output.hash.slice(0, 6)}...${response.output.hash.slice(-4)}`
     : '';
@@ -280,14 +279,14 @@ export function PathViz({ amountIn, amountOut }) {
             <Separator orientation="vertical" />
             <Badge className="" variant="outline">INR/THB</Badge>
             <Separator orientation="vertical" />
-            <Badge className="" variant="destructive">{(Number(amountOut)*0.985).toFixed(2)}</Badge>
+            <Badge className="" variant="destructive">{(Number(amountOut) * 0.985).toFixed(2)}</Badge>
           </div>
           <div className="flex w-full h-5 items-center space-x-2  justify-between text-sm">
             <div className=""> <Badge variant="default">{amountIn}</Badge></div>
             <Separator orientation="vertical" />
             <Badge className="" variant="outline">INR/THB</Badge>
             <Separator orientation="vertical" />
-            <Badge className="" variant="destructive">{(Number(amountOut)*0.985).toFixed(2)}</Badge>
+            <Badge className="" variant="destructive">{(Number(amountOut) * 0.985).toFixed(2)}</Badge>
           </div>
         </div>
       </div>
@@ -295,25 +294,3 @@ export function PathViz({ amountIn, amountOut }) {
   )
 }
 
-const formatNumber = (num) => {
-  const parts = num.toString().split(".");
-  const wholePartWithCommas = parseFloat(parts[0]).toLocaleString('en-US');
-  if (parts.length === 1) return wholePartWithCommas;  // No decimal part
-
-  const truncatedDecimalPart = parts[1].substring(0, 2);  // 2 decimal places
-  return `${wholePartWithCommas}.${truncatedDecimalPart}`;
-}
-
-const transformData = (data) => {
-  return data.map(item => {
-    return Object.entries(item.path).map(([inValue, pathObj]) => {
-      const sum = Object.values(pathObj).reduce((acc, value) => acc + value, 0);
-      const path = Object.keys(pathObj).join("/");
-      return {
-        in: inValue,
-        path,
-        out: sum.toFixed(2)  // Convert to string with 2 decimal places
-      };
-    });
-  });
-}

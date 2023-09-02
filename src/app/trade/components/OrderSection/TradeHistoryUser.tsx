@@ -10,6 +10,7 @@ import {
 import { useAtom } from "jotai";
 import { selectedPairAtom } from "@/atoms/selectedPairAtom";
 import { useGetSwapEventsUser } from "@/api/useGetSwapEventsUser";
+import { formatNumber } from "@/utils";
 
 export const useSwapOrderHistory = (coin1: string, coin2: string) => {
   const { data, ...rest } = useGetSwapEventsUser(coin1, coin2);
@@ -19,7 +20,6 @@ export const useSwapOrderHistory = (coin1: string, coin2: string) => {
     [coin1]: Number(event[coin1]),  // You can adjust depending on how you want to represent the volume
     [coin2]: Number(event[coin2]) / Number(event[coin1]),
   }));
-  console.log({ formattedData })
 
   return { ...rest, data: formattedData };
 };
@@ -71,9 +71,9 @@ export function TradeHistoryTable() {
         <TableBody>
           {data?.map((trade, index) => (
             <TableRow key={index}>
-            <TableCell className="w-[240px]">{new Date(trade.time).toLocaleTimeString()}</TableCell>
-              <TableCell>{trade[token0].toLocaleString()}</TableCell>
-              <TableCell>{trade[token1].toLocaleString()}</TableCell>
+              <TableCell className="w-[240px]">{new Date(trade.time).toLocaleTimeString()}</TableCell>
+              <TableCell>{formatNumber(trade[token0])}</TableCell>
+              <TableCell>{formatNumber(trade[token1].toLocaleString())}</TableCell>
             </TableRow>
           ))}
         </TableBody>

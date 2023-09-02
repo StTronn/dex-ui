@@ -36,7 +36,6 @@ export default function LineChartTabs() {
     toCurrency: item.toCurrency,
   }));
 
-  console.log({ data })
 
   const getDate = (dateString: string) => {
     const [year, month, day] = dateString.split("-").map(Number);
@@ -71,10 +70,8 @@ export default function LineChartTabs() {
       default:
         return data;
     }
-    console.log({ periodStartDate, lastAvailableDate })
 
     const tempDate = data.filter(item => getDate(item.Date) >= periodStartDate);
-    console.log({ tempDate })
     return tempDate;
   };
 
