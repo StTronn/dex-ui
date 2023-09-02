@@ -27,6 +27,7 @@ export const useSwapOrderHistory = (coin1: string, coin2: string) => {
     time: event.time, // Assuming you'll have a timestamp in your data. Replace this with actual time.
     [coin1]: Number(event[coin1]),  // You can adjust depending on how you want to represent the volume
     [coin2]: Number(event[coin2]),
+    type: event.type,
   }));
   console.log({ formattedData })
 
@@ -36,9 +37,9 @@ export const useSwapOrderHistory = (coin1: string, coin2: string) => {
 
 export const RecentSalesCard = () => {
   return (
-    <Card className="col-span-1">
+    <Card className="col-span-2">
       <CardHeader>
-        <CardTitle>All Liquidity Burnt</CardTitle>
+        <CardTitle>All Events</CardTitle>
         <CardDescription></CardDescription>
       </CardHeader>
       <CardContent>
@@ -100,12 +101,14 @@ export function TradeHistoryTable() {
     return <div>Error: {error?.message}</div>;
   }
 
+  data = data.reverse()
   data = data?.length >= 10 ? data?.slice(0, 9) : data;
   return (
     <Table>
       <TableHeader>
         <TableRow>
           <TableHead>Time</TableHead>
+          <TableHead>Event</TableHead>
           <TableHead>{token0} Price</TableHead>
           <TableHead>{token1} Price</TableHead>
         </TableRow>
@@ -114,8 +117,9 @@ export function TradeHistoryTable() {
         {data.map((trade, index) => (
           <TableRow key={index}>
             <TableCell className="w-[240px]">{new Date(trade.time).toLocaleTimeString()}</TableCell>
-            <TableCell>{trade[token0].toString().slice(0,Math.min(trade[token0].toString().length-1,4))}</TableCell>
-            <TableCell>{trade[token1].toString().slice(0,Math.min(trade[token1].toString().length-1,4))}</TableCell>
+            <TableCell className="w-[240px]">{trade.type}</TableCell>
+            <TableCell>{Number(Number(trade[token0]).toFixed(2)).toLocaleString()}</TableCell>
+            <TableCell>{Number(Number(trade[token1]).toFixed(2)).toLocaleString()}</TableCell>
           </TableRow>
         ))}
       </TableBody>

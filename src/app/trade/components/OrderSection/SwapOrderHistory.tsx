@@ -37,7 +37,7 @@ export const RecentSalesCard = () => {
   return (
     <Card className="col-span-1">
       <CardHeader>
-        <CardTitle>All Trades</CardTitle>
+        <CardTitle>Market Trades</CardTitle>
         <CardDescription></CardDescription>
       </CardHeader>
       <CardContent>

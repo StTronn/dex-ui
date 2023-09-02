@@ -8,7 +8,6 @@ export const OrderSection = () => {
     <div className="grid gap-4  grid-cols-2">
       <Overview/>
 
-      <UserMintHistory />
       <RecentSalesCard />
 
     </div>

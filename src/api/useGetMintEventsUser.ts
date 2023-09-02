@@ -1,9 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import { axiosInstanceAdapter } from './'; 
+import { axiosInstanceAdapter } from './';
 
 interface MintEvent {
   minter: string;
   block: number;
+  type: 'Mint' | 'Remove'
   [key: string]: string | number;
 }
 
@@ -14,7 +15,7 @@ interface MintEventsResponse {
 }
 
 export const useGetMintEventsUser = (coin1: string, coin2: string) => {
-  
+
   const fetchMintEvents = async (): Promise<MintEventsResponse> => {
     const endpoint = `/liquidity/get_mint_events_user/${coin1}/${coin2}`;
     const response = await axiosInstanceAdapter.get<MintEventsResponse>(endpoint, {
