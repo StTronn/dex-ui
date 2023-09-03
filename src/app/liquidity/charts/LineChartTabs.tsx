@@ -23,7 +23,7 @@ export default function LineChartTabs() {
     from_currency: "INR",
     to_currency: "SGD",
     from_date: "2022-01-01",
-    to_date: "2023-01-01",
+    to_date: null,
   });
 
   if (isLoading) return <div>Loading...</div>;

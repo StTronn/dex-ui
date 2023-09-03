@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { ethers } from "ethers";
 import { MainNav } from "../liquidity/components/main-nav";
 import { TopBar } from "../liquidity/components/top-bar";
+import { formatNumber } from "@/utils";
 
 const Balance = () => {
   return (
@@ -36,6 +37,7 @@ const Section = ({ title, description, children }: SectionProps) => (
 
 const Overview = ({ type }: OverviewProps) => {
   const { data, isLoading, isError, error } = useGetAccountBalances();
+  console.log({ data })
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -52,11 +54,11 @@ const Overview = ({ type }: OverviewProps) => {
 
     return (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 lg:gap-8 col-span-2">
-        {Object.keys(balances.liquidity.liquidity).map(currency => (
+        {Object.keys(data.liquidity).map(currency => (
           <BalanceCard
             key={currency}
             title={`${currency.toUpperCase()} Balance`}
-            balance={balances.liquidity.liquidity[currency]}
+            balance={data.liquidity[currency]}
           />
         ))}
       </div>
@@ -69,6 +71,7 @@ const Overview = ({ type }: OverviewProps) => {
 
 const OverviewBalance = ({ type }: OverviewProps) => {
   const { data, isLoading, isError, error } = useGetAccountBalances();
+  console.log({ data })
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -81,15 +84,14 @@ const OverviewBalance = ({ type }: OverviewProps) => {
   // We assume here that for liquidity type, you'll have another way to fetch data. 
   // For now, we focus on the currency type.
   if (type === "currency") {
-    const balances = data.data;
 
     return (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 lg:gap-8 col-span-2">
-        {Object.keys(balances.liquidity.balances).map(currency => (
+        {Object.keys(data.balances).map(currency => (
           <BalanceCard
             key={currency}
             title={`${currency.toUpperCase()} Balance`}
-            balance={balances.liquidity.balances[currency]}
+            balance={data.balances[currency]}
           />
         ))}
       </div>
@@ -108,7 +110,7 @@ const BalanceCard = ({ title, balance }: BalanceCardProps) => (
       </CardTitle>
     </CardHeader>
     <CardContent>
-      <div className="text-2xl font-bold">{formatNumberForUI(balance)}</div>
+      <div className="text-2xl font-bold">{formatNumber(balance)}</div>
       {/* You can add more details here if needed */}
     </CardContent>
   </Card>

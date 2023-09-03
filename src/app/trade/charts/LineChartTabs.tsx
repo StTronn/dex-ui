@@ -26,8 +26,8 @@ export default function LineChartTabs() {
   const { data: apiData, isLoading, isError } = useGetGraphData({
     from_currency: token0,
     to_currency: token1,
-    from_date: "2022-01-01",
-    to_date: "2023-01-01",
+    from_date: "2023-08-30",
+    to_date: '',
   });
 
   if (isLoading) return <div>Loading...</div>;
@@ -55,21 +55,17 @@ export default function LineChartTabs() {
   const getFilteredData = (value: string) => {
     let periodStartDate: Date;
 
-    const lastAvailableDate = getDate(data[0].Date);
+    const lastAvailableDate = getDate(data?.[0]?.Date);
 
     switch (value) {
       case "1M":
-        periodStartDate = subDays(lastAvailableDate, 30);
-        break;
+        return data;
       case "2M":
-        periodStartDate = subDays(lastAvailableDate, 60);
-        break;
+        return data;
       case "6M":
-        periodStartDate = subDays(lastAvailableDate, 180);
-        break;
+        return data;
       case "YTD":
-        periodStartDate = startOfYear(lastAvailableDate);
-        break;
+        return data;
       case "MAX":
       default:
         return data;
@@ -93,7 +89,7 @@ export default function LineChartTabs() {
         <TabsContent value="1M">
           <LineChart
             className="h-96 mt-8"
-            data={getFilteredData("1M")}
+            data={data}
             index="Date"
             categories={["Price"]}
             colors={["emerald"]}
@@ -106,7 +102,7 @@ export default function LineChartTabs() {
         <TabsContent value="2M">
           <LineChart
             className="h-96 mt-8"
-            data={getFilteredData("2M")}
+            data={data}
             index="Date"
             categories={["Price"]}
             colors={["emerald"]}
@@ -119,7 +115,7 @@ export default function LineChartTabs() {
         <TabsContent value="6M">
           <LineChart
             className="h-96 mt-8"
-            data={getFilteredData("6M")}
+            data={data}
             index="Date"
             categories={["Price"]}
             colors={["emerald"]}
@@ -132,7 +128,7 @@ export default function LineChartTabs() {
         <TabsContent value="YTD">
           <LineChart
             className="h-96 mt-8"
-            data={getFilteredData("YTD")}
+            data={data}
             index="Date"
             categories={["Price"]}
             colors={["emerald"]}
@@ -145,7 +141,7 @@ export default function LineChartTabs() {
         <TabsContent value="MAX">
           <LineChart
             className="h-96 mt-8"
-            data={getFilteredData("MAX")}
+            data={data}
             index="Date"
             categories={["Price"]}
             colors={["emerald"]}

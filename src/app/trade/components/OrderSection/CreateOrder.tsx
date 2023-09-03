@@ -40,6 +40,7 @@ import { formatEtherValue, formatNumber } from "@/utils"
 import { ethers } from "ethers"
 import { Badge } from "@/components/ui/badge"
 import { usePreviewRoute } from "@/api/usePreviewRoute"
+import { useUpdateOrder } from "@/api/useUpdateOrder"
 
 export function CreateOrder() {
   const [selectedPair] = useAtom(selectedPairAtom);
@@ -63,6 +64,7 @@ export function CreateOrder() {
   const [swapResponse, setSwapResponse] = useState(null);
 
   const createSwapMutation = useSwapOrder(inputToken, outputToken);
+  const { mutate: updateOrder } = useUpdateOrder()
 
   useEffect(() => {
     if (mode === 'buy') {
@@ -93,6 +95,14 @@ export function CreateOrder() {
         amountOutMin: "0.0001", // Modify this if there's a different logic for minimum accepted amount
       };
       const response = await createSwapMutation.mutateAsync(payload);
+      response.output.amountIn
+
+      updateOrder({
+        from: inputToken,
+        to: outputToken,
+        from_val: inputAmount,
+        to_val: response.output.amountOut
+      })
       // Handle response here if needed
       setSwapResponse(response);
       setShowDialog(true);  // Show the dialog on successful swap
@@ -108,6 +118,7 @@ export function CreateOrder() {
   const handlePathVizShow = () => {
     getPreivewRoute({ swapPool: inputToken + "/" + outputToken, swapAmount: Number(inputAmount) }, {
       onSuccess: (data) => {
+        console.log('sor', data)
         console.log("tranformData", transformData(data.data))
       }
     })
@@ -262,7 +273,7 @@ export function PathViz({ amountIn, amountOut }) {
           <div className="flex w-full h-5 items-center space-x-2  justify-between text-sm">
             <div className=""> <Badge variant="default">{amountIn}</Badge></div>
             <Separator orientation="vertical" />
-            <Badge className="" variant="outline">INR/SGD/THB</Badge>
+            <Badge className="" variant="outline">INR/THB/SGD</Badge>
             <Separator orientation="vertical" />
             <Badge className="" variant="destructive">{amountOut}</Badge>
           </div>
@@ -277,16 +288,9 @@ export function PathViz({ amountIn, amountOut }) {
           <div className="flex w-full h-5 items-center space-x-2  justify-between text-sm">
             <div className=""> <Badge variant="default">{amountIn}</Badge></div>
             <Separator orientation="vertical" />
-            <Badge className="" variant="outline">INR/THB</Badge>
+            <Badge className="" variant="outline">INR/SGD</Badge>
             <Separator orientation="vertical" />
-            <Badge className="" variant="destructive">{(Number(amountOut) * 0.985).toFixed(2)}</Badge>
-          </div>
-          <div className="flex w-full h-5 items-center space-x-2  justify-between text-sm">
-            <div className=""> <Badge variant="default">{amountIn}</Badge></div>
-            <Separator orientation="vertical" />
-            <Badge className="" variant="outline">INR/THB</Badge>
-            <Separator orientation="vertical" />
-            <Badge className="" variant="destructive">{(Number(amountOut) * 0.985).toFixed(2)}</Badge>
+            <Badge className="" variant="destructive">{(Number(amountOut) * 0.999).toFixed(2)}</Badge>
           </div>
         </div>
       </div>

@@ -61,8 +61,8 @@ export function TradeHistoryTable() {
       <TableHeader>
         <TableRow>
           <TableHead>Time</TableHead>
-          <TableHead>{token0}</TableHead>
-          <TableHead>{token1}</TableHead>
+          <TableHead>Amount</TableHead>
+          <TableHead>Price</TableHead>
         </TableRow>
       </TableHeader>
       {

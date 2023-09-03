@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import { axiosInstance } from './'; // Using './' as per your instruction
+import { axiosInstanceAdapter } from './'; // Using './' as per your instruction
 
 export const useGetAccountBalances = () => {
 
   const fetchAccountBalances = async (): Promise<AccountBalancesResponse> => {
-    const response = await axiosInstance.get<AccountBalancesResponse>('/project51/v1/balance/token/balance', {
+    const response = await axiosInstanceAdapter.post<AccountBalancesResponse>('/safe/token/balance', {
       headers: {
         accept: 'application/json',
         jwtToken: `${localStorage.getItem('authToken')}`

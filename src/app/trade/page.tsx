@@ -89,7 +89,7 @@ export default function MusicPage() {
                       <TabsContent key={pair} value={pair} className="border-none p-0 outline-none">
                         <div className="space-y-6">
                           <div className="grid gap-2 lg:grid-cols-6">
-                            <LineChartTabs />
+                             <LineChartTabs />
                           </div>
                           <OrderSection />
                         </div>
